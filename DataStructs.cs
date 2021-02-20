@@ -4,23 +4,45 @@ using System.Text;
 
 namespace SpinAnalysis.DataStructs
 {
-    public struct RawSample
+    public interface ISpinSampleData
     {
-        public double TimeStampUs;
-        public int Value;
+        double TimeStampUs { get; }
+        int Value { get; }
     }
 
-    public struct ProcessedSample
+    public class SampleTimeComparer<T> : IComparer<T> where T : ISpinSampleData
+    {
+        public int Compare(T x, T y)
+        {
+            return x.TimeStampUs.CompareTo(y.TimeStampUs);
+        }
+    }
+
+    public struct RawSample : ISpinSampleData
     {
         public double TimeStampUs;
+        double ISpinSampleData.TimeStampUs => TimeStampUs;
+
         public int Value;
+        int ISpinSampleData.Value => Value;
+    }
+
+    public struct ProcessedSample : ISpinSampleData
+    {
+        public double TimeStampUs;
+        double ISpinSampleData.TimeStampUs => TimeStampUs;
+
+        public int Value;
+        int ISpinSampleData.Value => Value;
+
         public double DifferenceFromMean;
         public double StandardDeviationCount;
-    }
 
-    public struct ProcessedMetaData //Not sure if I'll use.
-    {
-        public double Mean;
-        public double StandardDeviation;
-    }
+        
+
+        
+    }   
+
+
+
 }
