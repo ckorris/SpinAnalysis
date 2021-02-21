@@ -37,11 +37,17 @@ namespace SpinAnalysis.DataStructs
 
         public double DifferenceFromMean;
         public double StandardDeviationCount;
+    }
 
-        
+    public struct GroupedProcessedSample : ISpinSampleData
+    {
+        public ProcessedSample ProcessedSampleSource;
 
-        
-    }   
+        double ISpinSampleData.TimeStampUs => ProcessedSampleSource.TimeStampUs;
+        int ISpinSampleData.Value => ProcessedSampleSource.Value;
+
+        public int DeviceIndexWithinGroup;
+    }
 
 
 

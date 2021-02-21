@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using SpinAnalysis.DataStructs;
 
@@ -10,18 +11,18 @@ namespace SpinAnalysis
         public double Mean;
         public double StandardDeviation;
 
-        private SortedSet<ProcessedSample> _processedSamples;
+        public SortedSet<ProcessedSample> ProcessedSamples { get; private set; }
 
         private DeviceProcessedSamples(int deviceIndex, double mean, double standardDeviation, SortedSet<ProcessedSample> processedSamples)
         {
             Mean = mean;
             StandardDeviation = standardDeviation;
-            _processedSamples = processedSamples;
+            ProcessedSamples = processedSamples;
         }
 
         public SortedSet<ProcessedSample> FilterByDeviationCount(double minimumDeviations)
         {
-            return FilterByDeviationCount(_processedSamples, minimumDeviations);
+            return FilterByDeviationCount(ProcessedSamples, minimumDeviations);
         }
 
         public static SortedSet<ProcessedSample> FilterByDeviationCount(SortedSet<ProcessedSample> baseSet, double minimumDeviations)
@@ -33,7 +34,7 @@ namespace SpinAnalysis
 
         public SortedSet<ProcessedSample> FilterByTimeRange(double minTimeUs, double maxTimeUs)
         {
-            return FilterByTimeRange(_processedSamples, minTimeUs, maxTimeUs);
+            return FilterByTimeRange(ProcessedSamples, minTimeUs, maxTimeUs);
         }
 
         public static SortedSet<ProcessedSample> FilterByTimeRange(SortedSet<ProcessedSample> baseSet, double minTimeUs, double maxTimeUs)
@@ -41,6 +42,35 @@ namespace SpinAnalysis
             SortedSet<ProcessedSample> filteredSet = new SortedSet<ProcessedSample>(baseSet, new SampleTimeComparer<ProcessedSample>());
             filteredSet.RemoveWhere(ps => ps.TimeStampUs < minTimeUs || ps.TimeStampUs > maxTimeUs);
             return filteredSet;
+        }
+
+        public ProcessedSample GetPeakDeviation(bool useAbsolute = true)
+        {
+            return GetPeakDeviation(ProcessedSamples, useAbsolute);
+        }
+
+        public static ProcessedSample GetPeakDeviation(SortedSet<ProcessedSample> baseSet, bool useAbsolute = true)
+        {
+            if(baseSet == null || baseSet.Count == 0)
+            {
+                throw new ArgumentException("Passed in null or empty sample set.");
+            }
+
+            double highestSTDCount = double.MinValue;
+            ProcessedSample highestSample = baseSet.ElementAt(0);
+
+            foreach(ProcessedSample sample in baseSet)
+            {
+                double stds = (useAbsolute) ? Math.Abs(sample.StandardDeviationCount) : sample.StandardDeviationCount;
+
+                if(stds > highestSTDCount)
+                {
+                    highestSTDCount = stds;
+                    highestSample = sample;
+                }
+            }
+
+            return highestSample;
         }
 
 
