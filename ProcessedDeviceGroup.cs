@@ -8,7 +8,7 @@ namespace SpinAnalysis
 {
     public class ProcessedDeviceGroup
     {
-        private List<DeviceProcessedSamples> _deviceSamples;
+        private List<DeviceProcessedSamples> _deviceSamples; 
 
         public SortedSet<GroupedProcessedSample> MostSignificantValues { get; private set; } = new SortedSet<GroupedProcessedSample>();
 
