@@ -19,6 +19,12 @@ namespace SpinAnalysis
             DevicesByIndex[deviceIndex].AddRawSamples(newSamples);
         }
 
+        public void Export(string path) //TODO: foreach all of them once I figure out how this works.
+        {
+            //CSVUtilities.ExportFile(DevicesByIndex[0].RawSamples, path);
+            CSVUtilities.ExportRawSamples(DevicesByIndex, path);
+        }
+
         public void Clear()
         {
             foreach(int index in DevicesByIndex.Keys)

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using CsvHelper.Configuration;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -25,6 +26,15 @@ namespace SpinAnalysis.DataStructs
 
         public int Value;
         int ISpinSampleData.Value => Value;
+    }
+
+    public partial class RawSampleMap : ClassMap<RawSample>
+    {
+        public RawSampleMap()
+        {
+            Map(m => m.TimeStampUs);
+            Map(m => m.Value);
+        }
     }
 
     public struct ProcessedSample : ISpinSampleData
