@@ -10,50 +10,34 @@ namespace SpinAnalysis
 {
     public static class CSVUtilities
     {
-        public static void ExportFileTest()
+        public static void ExportFile<T>(IEnumerable<T> collectionToExport, string path) 
         {
-            List<TestRecord> testRecords = new List<TestRecord>()
-            {
-                new TestRecord(){TimeStampMS = 500, InputValue = 50},
-                new TestRecord(){TimeStampMS = 520, InputValue = 75},
-                new TestRecord(){TimeStampMS = 540, InputValue = 125},
-            };
-
-
-            using (StreamWriter streamWriter = new StreamWriter("TestFile.csv"))
+            using (StreamWriter streamWriter = new StreamWriter(path))
             {
                 using (CsvWriter csvWriter = new CsvWriter(streamWriter, CultureInfo.InvariantCulture))
                 {
                     //csvWriter.Configuration.in
-                    csvWriter.WriteRecords(testRecords);
+                    csvWriter.WriteRecords(collectionToExport);
                 }
-
-
             }
-
         }
 
-        public static IEnumerable<TestRecord> ImportFileTest()
+        public static IEnumerable<T> ImportFile<T>(string path)
         {
-            List<TestRecord> testRecords;
+            IEnumerable<T> loaded;
 
-            using(StreamReader streamReader = new StreamReader("TestFile.csv"))
+            using (StreamReader streamReader = new StreamReader("TestFile.csv"))
             {
-                using(CsvReader csvReader = new CsvReader(streamReader, CultureInfo.InvariantCulture))
+                using (CsvReader csvReader = new CsvReader(streamReader, CultureInfo.InvariantCulture))
                 {
-                    testRecords = csvReader.GetRecords<TestRecord>().ToList();
+                    loaded = csvReader.GetRecords<T>();
                 }
             }
 
-            return testRecords;
-            
+            return loaded;
+
         }
     }
 
-    public class TestRecord
-    {
-        public int TimeStampMS { get; set; }
-        public int InputValue { get; set; }
-    }
 }
 
