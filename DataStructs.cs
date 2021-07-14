@@ -21,7 +21,10 @@ namespace SpinAnalysis.DataStructs
 
     public struct RawSample : ISpinSampleData
     {
+        public int DeviceNumber;
+
         public double TimeStampUs;
+
         double ISpinSampleData.TimeStampUs => TimeStampUs;
 
         public int Value;
@@ -32,6 +35,7 @@ namespace SpinAnalysis.DataStructs
     {
         public RawSampleMap()
         {
+            Map(m => m.DeviceNumber);
             Map(m => m.TimeStampUs);
             Map(m => m.Value);
         }
@@ -39,7 +43,10 @@ namespace SpinAnalysis.DataStructs
 
     public struct ProcessedSample : ISpinSampleData
     {
+        public int DeviceNumber;
+
         public double TimeStampUs;
+
         double ISpinSampleData.TimeStampUs => TimeStampUs;
 
         public int Value;
@@ -47,6 +54,18 @@ namespace SpinAnalysis.DataStructs
 
         public double DifferenceFromMean;
         public double StandardDeviationCount;
+    }
+
+    public partial class ProcessedSampleMap : ClassMap<ProcessedSample>
+    {
+        public ProcessedSampleMap()
+        {
+            Map(m => m.DeviceNumber);
+            Map(m => m.TimeStampUs);
+            Map(m => m.Value);
+            Map(m => m.DifferenceFromMean);
+            Map(m => m.StandardDeviationCount);
+        }
     }
 
     public struct GroupedProcessedSample : ISpinSampleData

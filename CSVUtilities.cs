@@ -39,10 +39,11 @@ namespace SpinAnalysis
 
                     foreach(KeyValuePair<int, DeviceRawSamples> kvp in sampleDict)
                     {
-                        csvWriter.WriteComment(kvp.Value.DeviceIndex.ToString());                        csvWriter.NextRecord();
+                        //csvWriter.WriteComment(kvp.Value.DeviceIndex.ToString());                        
+                        //csvWriter.NextRecord();
                         //csvWriter.WriteHeader<RawSampleMap>();
                         csvWriter.WriteRecords(kvp.Value.RawSamples);
-                        csvWriter.NextRecord();
+                        //csvWriter.NextRecord();
                     }
                 }
             }

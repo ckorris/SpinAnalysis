@@ -51,7 +51,7 @@ namespace SpinAnalysis
 
         public static ProcessedSample GetPeakDeviation(SortedSet<ProcessedSample> baseSet, bool useAbsolute = true)
         {
-            if(baseSet == null || baseSet.Count == 0)
+            if (baseSet == null || baseSet.Count == 0)
             {
                 throw new ArgumentException("Passed in null or empty sample set.");
             }
@@ -59,11 +59,11 @@ namespace SpinAnalysis
             double highestSTDCount = double.MinValue;
             ProcessedSample highestSample = baseSet.ElementAt(0);
 
-            foreach(ProcessedSample sample in baseSet)
+            foreach (ProcessedSample sample in baseSet)
             {
                 double stds = (useAbsolute) ? Math.Abs(sample.StandardDeviationCount) : sample.StandardDeviationCount;
 
-                if(stds > highestSTDCount)
+                if (stds > highestSTDCount)
                 {
                     highestSTDCount = stds;
                     highestSample = sample;
@@ -78,30 +78,16 @@ namespace SpinAnalysis
 
         public static DeviceProcessedSamples CreateFromRaw(DeviceRawSamples deviceRawSamples)
         {
-            SortedSet<RawSample> rawSamples = deviceRawSamples.RawSamples;
+            List<RawSample> rawSamples = deviceRawSamples.RawSamples.ToList();
 
             if (rawSamples.Count == 0)
             {
                 throw new Exception("No raw samples added before trying to process.");
             }
 
-            //Make list of processed samples. Not yet sorted, so we can iterate easier.
-            List<ProcessedSample> tempProcessedSamplesList = new List<ProcessedSample>();
-
-            foreach (RawSample rawSample in rawSamples)
-            {
-                ProcessedSample newProcessedSample = new ProcessedSample()
-                {
-                    TimeStampUs = rawSample.TimeStampUs,
-                    Value = rawSample.Value
-                };
-
-                tempProcessedSamplesList.Add(newProcessedSample);
-            }
-
             //Calculate the mean, and simultaneously add new processed sample entry to a new list.
             double mean = 0;
-            foreach (ProcessedSample sample in tempProcessedSamplesList)
+            foreach (RawSample sample in rawSamples)
             {
                 mean += sample.Value;
             }
@@ -110,36 +96,44 @@ namespace SpinAnalysis
 
             //Get the difference of each sample from the mean.
             double squaredmeandifferencemean = 0;
-            for (int i = 0; i < tempProcessedSamplesList.Count; i++)
+            double[] differencesFromMean = new double[rawSamples.Count];
+            for (int i = 0; i < rawSamples.Count; i++)
             {
-                ProcessedSample sample = tempProcessedSamplesList[i]; //Shorthand.
+                RawSample sample = rawSamples[i];
 
                 double differenceFromMean = sample.Value - mean;
-                sample.DifferenceFromMean = differenceFromMean;
+                differencesFromMean[i] = differenceFromMean;
                 squaredmeandifferencemean += Math.Pow(differenceFromMean, 2);
             }
 
-            squaredmeandifferencemean /= tempProcessedSamplesList.Count;
+            squaredmeandifferencemean /= rawSamples.Count;
 
             //Calculate the final standard deviation.
             double standardDeviation = Math.Sqrt(squaredmeandifferencemean);
-
-            //Store the deviation count in each sample.
-            for (int i = 0; i < tempProcessedSamplesList.Count; i++)
+            //double[] standardDeviationCounts = new double[rawSamples.Count];
+            //Calculate the deviation count for each sample, and also make a new list of them.
+            List<ProcessedSample> processedSamples = new List<ProcessedSample>();
+            for (int i = 0; i < rawSamples.Count; i++)
             {
-                ProcessedSample sample = tempProcessedSamplesList[i]; //Shorthand.
-
-                sample.StandardDeviationCount = sample.Value / standardDeviation;
+                RawSample sample = rawSamples[i]; //Shorthand.
+                ProcessedSample newProcessedSample = new ProcessedSample()
+                {
+                    Value = sample.Value,
+                    TimeStampUs = sample.TimeStampUs,
+                    DifferenceFromMean = differencesFromMean[i],
+                    StandardDeviationCount = sample.Value / standardDeviation
+                };
+                processedSamples.Add(newProcessedSample);
             }
 
             //Store the temp list as the persistent set.
-            SortedSet<ProcessedSample> finalSet = new SortedSet<ProcessedSample>(tempProcessedSamplesList, new SampleTimeComparer<ProcessedSample>());
+            SortedSet<ProcessedSample> finalSet = new SortedSet<ProcessedSample>(processedSamples, new SampleTimeComparer<ProcessedSample>());
 
             //Create a processed set and return it.
             return new DeviceProcessedSamples(deviceRawSamples.DeviceIndex, mean, standardDeviation, finalSet);
 
         }
 
-        
+
     }
 }
