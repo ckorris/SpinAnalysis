@@ -19,6 +19,11 @@ namespace SpinAnalysis
             DeviceIndex = deviceIndex;
         }
 
+        public void AddRawSample(RawSample newSample)
+        {
+            RawSamples.Add(newSample);
+        }
+
         public void AddRawSamples(List<RawSample> newSamples)
         {
             RawSamples.UnionWith(newSamples);

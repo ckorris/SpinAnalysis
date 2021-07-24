@@ -110,7 +110,7 @@ namespace SpinAnalysis
 
             //Calculate the final standard deviation.
             double standardDeviation = Math.Sqrt(squaredmeandifferencemean);
-            //double[] standardDeviationCounts = new double[rawSamples.Count];
+
             //Calculate the deviation count for each sample, and also make a new list of them.
             List<ProcessedSample> processedSamples = new List<ProcessedSample>();
             for (int i = 0; i < rawSamples.Count; i++)

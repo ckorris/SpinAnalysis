@@ -49,6 +49,34 @@ namespace SpinAnalysis
             }
         }
 
+        public static Dictionary<int, DeviceRawSamples> ImportRawSamples(string filePath)
+        {
+            using (StreamReader streamReader = new StreamReader(filePath))
+            {
+                using (CsvReader csvReader = new CsvReader(streamReader, CultureInfo.InvariantCulture))
+                {
+                    csvReader.Context.RegisterClassMap<RawSampleMap>();
+
+                    Dictionary<int, DeviceRawSamples> outDictionary = new Dictionary<int, DeviceRawSamples>();
+
+                    List<RawSample> importedList = csvReader.GetRecords<RawSample>().ToList();
+
+                    foreach(RawSample sample in importedList)
+                    {
+                        if(outDictionary.ContainsKey(sample.DeviceNumber) == false)
+                        {
+                            DeviceRawSamples newSamples = new DeviceRawSamples(sample.DeviceNumber);
+                            outDictionary.Add(sample.DeviceNumber, newSamples);
+                        }
+
+                        outDictionary[sample.DeviceNumber].AddRawSample(sample);
+                    }
+
+                    return outDictionary;
+                }
+            }
+        }
+
         public static IEnumerable<T> ImportFile<T>(string path)
         {
             IEnumerable<T> loaded;
